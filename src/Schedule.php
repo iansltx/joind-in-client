@@ -2,17 +2,17 @@
 
 namespace iansltx\JoindInClient;
 
-class Schedule implements \Countable
+class Schedule implements \Countable, \ArrayAccess
 {
     protected $events;
 
-    public function fromParsedJson(array $json) : self
+    public static function fromParsedJson(array $json) : self
     {
         return new static(array_map(function($data) : Event {
             return new Event(
                 \DateTimeImmutable::createFromFormat(DATE_ATOM, $data['start_date']),
                 \DateTimeImmutable::createFromFormat(DATE_ATOM, $data['start_date'])
-                    ->add(new \DateInterval('PT' . ($data['duration'] / 60 ) . 'M')),
+                    ->add(new \DateInterval('PT' . round($data['duration'] * 60) . 'S')),
                 $data['talk_title'],
                 $data['talk_description']
             );
@@ -24,7 +24,7 @@ class Schedule implements \Countable
      */
     public function __construct(array $events)
     {
-        $this->events = $events;
+        $this->events = array_values($events);
     }
 
     public function count()
@@ -72,5 +72,25 @@ class Schedule implements \Countable
             throw new NoMoreEventsException;
         }
         return $this->events[1];
+    }
+
+    public function offsetExists($offset) : bool
+    {
+        return isset($this->events[$offset]);
+    }
+
+    public function offsetGet($offset) : ?Event
+    {
+        return $this->events[$offset] ?? null;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        throw new \LogicException("Schedule objects are immutable");
+    }
+
+    public function offsetUnset($offset)
+    {
+        throw new \LogicException("Schedule objects are immutable");
     }
 }

@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7\Request;
 
 class Client
 {
-    const DEFAULT_CONFIG = ['base_url' => 'https://api.joind.in/v2.1/'];
+    const DEFAULT_CONFIG = ['base_uri' => 'https://api.joind.in/v2.1/'];
 
     public static function create()
     {
